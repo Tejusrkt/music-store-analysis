@@ -1,0 +1,90 @@
+create database music
+use music
+
+---Q1: Who is the most senior employee based on the title
+
+select * from employee
+order by levels desc
+
+----ANSW: MADAN MOHAN
+
+-----Q:Which countries have the most invoices
+
+select billing_country,count(invoice_id) as total_count from invoice
+group by billing_country
+order by total_count desc
+
+---answ: 131
+
+---Q3: What are top 3 values of the invoice
+select count(invoice_id) as total_count from invoice
+group by billing_country
+order by total_count desc
+----limit 3
+
+/* Q4: Which city has the best customers? We would like to throw a promotional Music Festival in the city we made the most money. 
+Write a query that returns one city that has the highest sum of invoice totals. 
+Return both the city name & sum of all invoice totals */
+
+select sum(total) as total_sum,billing_city from invoice
+group by billing_city
+order by total_sum desc
+
+/* Q5: Who is the best customer? The customer who has spent the most money will be declared the best customer. 
+Write a query that returns the person who has spent the most money.*/
+;with cte_total_sum
+as
+(
+select c.customer_id,sum(total) as total_sum from customer as c join invoice as inv
+on c.customer_id=inv.customer_id
+group by c.customer_id
+)
+select first_name+' '+last_name as full_name,total_sum from customer c join cte_total_sum ct
+on c.customer_id=ct.customer_id
+order by total_sum desc
+
+/* Question Set 2 - Moderate */
+
+/* Q1: Write query to return the email, first name, last name, & Genre of all Rock Music listeners. 
+Return your list ordered alphabetically by email starting with A. */
+
+
+
+select email,first_name,last_name from customer c join invoice inv
+on c.customer_id=inv.customer_id join invoice_line
+on inv.invoice_id=invoice_line.invoice_id
+where track_id in
+(select track_id from track join genre g 
+on track.genre_id=g.genre_id
+where g.name like 'Rock')
+order by email asc
+
+
+/* Q2: Let's invite the artists who have written the most rock music in our dataset. 
+Write a query that returns the Artist name and total track count of the top 10 rock bands. */
+
+select * from artist where name like 'Led Zeppelin'
+select * from album
+select * from genre
+select * from track
+select * from invoice_line
+
+;with cte_art
+as(
+select artist.artist_id,count(artist.artist_id) as total_track_count from track join album
+on album.album_id=track.track_id join artist
+on artist.artist_id=album.artist_id join genre
+on track.genre_id=genre.genre_id
+where genre.name like 'Rock'
+group by artist.artist_id
+)
+select artist.name,cte_art.total_track_count from artist join cte_art
+on artist.artist_id=cte_art.artist_id
+order by total_track_count desc
+
+/* Q3: Return all the track names that have a song length longer than the average song length. 
+Return the Name and Milliseconds for each track. Order by the song length with the longest songs listed first. */
+
+select name,milliseconds from track
+where milliseconds >(select avg(milliseconds) from track)
+order by milliseconds desc
