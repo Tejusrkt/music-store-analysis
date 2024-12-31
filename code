@@ -88,3 +88,7 @@ Return the Name and Milliseconds for each track. Order by the song length with t
 select name,milliseconds from track
 where milliseconds >(select avg(milliseconds) from track)
 order by milliseconds desc
+/* Question Set 3 - Advance */
+
+/* Q1: Find how much amount spent by each customer on artists? Write a query to return customer name, artist name and total spent */
+
